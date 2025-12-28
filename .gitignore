@@ -1,0 +1,60 @@
+# =========================
+# Secrets / credentials
+# =========================
+.env
+.env.*
+credentials.json
+*.key
+*.secret
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# =========================
+# Python tooling
+# =========================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Logs / runtime artifacts
+# =========================
+*.log
+*.tmp
+
+# =========================
+# Local data / dumps
+# =========================
+*.json
+!example*.json
+*.csv
+*.xlsx
+
+# =========================
+# Cron / systemd artifacts
+# =========================
+*.pid
+*.lock
