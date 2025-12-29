@@ -1,7 +1,7 @@
 from monitor.snapshot import DaySnapshot
 from infra.fitbit.client import FitbitClient
 from infra.sheets.client import SheetsClient
-from util import iso_to_hhmm, minutes_to_hhmm
+from monitor.util import iso_to_hhmm, minutes_to_hhmm
 
 
 class Monitor:

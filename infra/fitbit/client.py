@@ -18,6 +18,8 @@ class FitbitClient:
         self.client_id = client_id
         self.client_secret = client_secret
         self.tokens_file = tokens_file
+        self._token_ok = False
+
 
         self._load_tokens()
 
@@ -100,14 +102,19 @@ class FitbitClient:
         - make a cheap ping call
         - if 401 → refresh token → retry
         """
+        if self._token_ok:
+            return
+
         try:
             self._get(f"/1/user/{self.user_id}/profile.json")
+            self._token_ok = True
         except HTTPError as e:
             if e.response.status_code != 401:
                 raise
 
-            # token expired
             self._refresh_tokens()
+            self._get(f"/1/user/{self.user_id}/profile.json")
+            self._token_ok = True
 
     # ============================================================
     # Public API
