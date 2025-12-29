@@ -155,7 +155,7 @@ def get_diet(date: str) -> dict:
     }
 
 
-date = "2025-10-01"
+date = "2025-10-02"
 
 sleep = get_sleep(date)
 hrv = get_hrv(date)
@@ -179,10 +179,12 @@ creds = Credentials.from_service_account_file(
 
 gc = gspread.authorize(creds)
 
-sheet = gc.open_by_key("13mpOKAxKXc9H5TgOQ8yIvGWOEQ12g6XGuX-HJeDuCNE").sheet1
 
-spreadsheet = gc.open_by_key("13mpOKAxKXc9H5TgOQ8yIvGWOEQ12g6XGuX-HJeDuCNE")
+GOOGLE_CLOUD_KEY = os.getenv("GOOGLE_CLOUD_KEY")
+if not FITBIT_USER_ID:
+    raise RuntimeError("Missing GOOGLE_CLOUD_KEY")
 
+spreadsheet = gc.open_by_key(GOOGLE_CLOUD_KEY)
 sheet = spreadsheet.worksheet("Monitor-2026")
 
 headers = sheet.row_values(4)
