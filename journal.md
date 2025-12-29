@@ -48,3 +48,5 @@ Schema Subscetions:
     - Fats. [g]
     - Carb. [g]
 ```
+
+Jak się dostać do Fitbit API? -> [1 - Intro and accessing FitBit API with Postman - FitBit API for Beginners](https://youtu.be/e5WYfIqt_Zk?si=z8fNUBzy5bypgUQ_).

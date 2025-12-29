@@ -102,6 +102,7 @@ class FitbitClient:
         - make a cheap ping call
         - if 401 → refresh token → retry
         """
+        
         if self._token_ok:
             return
 
@@ -111,6 +112,9 @@ class FitbitClient:
         except HTTPError as e:
             if e.response.status_code != 401:
                 raise
+
+            if e.response.status_code == 429:
+                raise RuntimeError("Fitbit rate limit hit – slow down")
 
             self._refresh_tokens()
             self._get(f"/1/user/{self.user_id}/profile.json")
