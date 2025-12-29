@@ -1,24 +1,108 @@
 from dotenv import load_dotenv
 import os
 
+import json
+from pathlib import Path
+
+from day_snapshot import DaySnapshot
+
+FITBIT_TOKENS_FILE = Path(".fitbit_tokens.json")
+
+if not FITBIT_TOKENS_FILE.exists():
+    raise RuntimeError("Missing .fitbit_tokens.json")
+
+with FITBIT_TOKENS_FILE.open("r", encoding="utf-8") as f:
+    tokens = json.load(f)
+
+FITBIT_ACCESS_TOKEN = tokens.get("access_token")
+FITBIT_REFRESH_TOKEN = tokens.get("refresh_token")
+FITBIT_EXPIRES_AT = tokens.get("expires_at")  # optional
+
+if not FITBIT_ACCESS_TOKEN or not FITBIT_REFRESH_TOKEN:
+    raise RuntimeError("Invalid .fitbit_tokens.json (missing tokens)")
+
 load_dotenv()
 
-FITBIT_TOKEN = os.getenv("FITBIT_TOKEN")
 FITBIT_USER_ID = os.getenv("FITBIT_USER_ID")
+if not FITBIT_USER_ID:
+    raise RuntimeError("Missing FITBIT_USER_ID")
 
-if not FITBIT_TOKEN:
-    raise RuntimeError("Missing FITBIT_TOKEN")
+FITBIT_CLIENT_ID = os.getenv("FITBIT_CLIENT_ID")
+FITBIT_CLIENT_SECRET = os.getenv("FITBIT_CLIENT_SECRET")
+
+if not FITBIT_CLIENT_ID or not FITBIT_CLIENT_SECRET:
+    raise RuntimeError("Missing FITBIT_CLIENT_ID / FITBIT_CLIENT_SECRET")
+
 
 from datetime import date
 import fitbit as fitbit
 import util as util
 import json
 
-client = fitbit.FitbitClient(token=FITBIT_TOKEN, user_id=FITBIT_USER_ID)
+from datetime import datetime, timedelta
 
-sleep = fitbit.get_sleep_by_date(client, "2025-12-26")
-hrv = fitbit.get_hrv_by_date(client, "2025-12-28")
-heart = fitbit.get_heart_rate_intraday(client, "2025-12-28")
+
+def save_fitbit_tokens(
+    access_token: str,
+    refresh_token: str,
+    expires_in: int,
+):
+    data = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_at": (
+            datetime.utcnow() + timedelta(seconds=expires_in)
+        ).isoformat(),
+    }
+
+    with FITBIT_TOKENS_FILE.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+import fitbit
+from requests import HTTPError
+
+
+def ensure_fitbit_client():
+    global FITBIT_ACCESS_TOKEN, FITBIT_REFRESH_TOKEN
+
+    client = fitbit.FitbitClient(
+        token=FITBIT_ACCESS_TOKEN,
+        user_id=FITBIT_USER_ID,
+    )
+
+    try:
+        # lekki ping – najtańszy endpoint
+        fitbit.get_profile(client)
+        return client
+
+    except HTTPError as e:
+        if e.response.status_code != 401:
+            raise
+
+        print("Access token expired – refreshing...")
+
+        refreshed = fitbit.refresh_fitbit_tokens(
+            client_id=FITBIT_CLIENT_ID,
+            client_secret=FITBIT_CLIENT_SECRET,
+            refresh_token=FITBIT_REFRESH_TOKEN,
+        )
+
+        FITBIT_ACCESS_TOKEN = refreshed["access_token"]
+        FITBIT_REFRESH_TOKEN = refreshed["refresh_token"]
+
+        save_fitbit_tokens(
+            access_token=FITBIT_ACCESS_TOKEN,
+            refresh_token=FITBIT_REFRESH_TOKEN,
+            expires_in=refreshed["expires_in"],
+        )
+
+        return fitbit.FitbitClient(
+            token=FITBIT_ACCESS_TOKEN,
+            user_id=FITBIT_USER_ID,
+        )
+
+
+client = ensure_fitbit_client()
 
 
 def get_steps(date: str) -> int:
@@ -71,10 +155,56 @@ def get_diet(date: str) -> dict:
     }
 
 
-date = "2025-09-22"
+date = "2025-10-01"
 
-print("Sleep: ", get_sleep(date))
-print("HRV: ", get_hrv(date))
-print("Resting Heart Rate: ", get_heart_rate(date))
-print("Steps: ", get_steps(date))
+sleep = get_sleep(date)
+hrv = get_hrv(date)
+rhr = get_heart_rate(date)
+steps = get_steps(date)
+print("Sleep: ", sleep)
+print("HRV: ", hrv)
+print("Resting Heart Rate: ", rhr) 
+print("Steps: ", steps)
 # print("Diet: ", get_diet(date))
+
+import gspread
+from google.oauth2.service_account import Credentials
+
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+
+creds = Credentials.from_service_account_file(
+    "credentials.json",
+    scopes=SCOPES,
+)
+
+gc = gspread.authorize(creds)
+
+sheet = gc.open_by_key("13mpOKAxKXc9H5TgOQ8yIvGWOEQ12g6XGuX-HJeDuCNE").sheet1
+
+spreadsheet = gc.open_by_key("13mpOKAxKXc9H5TgOQ8yIvGWOEQ12g6XGuX-HJeDuCNE")
+
+sheet = spreadsheet.worksheet("Monitor-2026")
+
+headers = sheet.row_values(4)
+col_idx = {h: i+1 for i, h in enumerate(headers)}
+
+import sheets as sheets
+
+# sheets.insert_week_template(col_idx, sheet)
+
+snapshot = DaySnapshot(
+    sleep_start=sleep["startTime"],
+    sleep_end=sleep["endTime"],
+    sleep_asleep=sleep["timeAsleep"],
+    sleep_in_bed=sleep["timeInBed"],
+    sleep_efficiency=sleep["efficiency"],
+    sleep_deep=sleep["deep"],
+    sleep_light=sleep["light"],
+    sleep_rem=sleep["rem"],
+    sleep_wake=sleep["wake"],
+    hrv=hrv,
+    rhr=rhr,
+    steps=steps,
+)
+
+sheets.insert_day_values(sheet, date, snapshot, col_idx)

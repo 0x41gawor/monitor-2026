@@ -23,6 +23,52 @@ class FitbitClient:
         response.raise_for_status()
         return response.json()
 
+import requests
+import base64
+from typing import Dict, Any
+
+
+def refresh_fitbit_tokens(
+    client_id: str,
+    client_secret: str,
+    refresh_token: str,
+) -> Dict[str, Any]:
+    """
+    Refresh Fitbit OAuth2 tokens.
+
+    Returns raw JSON response:
+    {
+        access_token,
+        refresh_token,
+        expires_in,
+        token_type,
+        scope
+    }
+    """
+    auth = base64.b64encode(
+        f"{client_id}:{client_secret}".encode("utf-8")
+    ).decode("utf-8")
+
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+
+    data = {
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token,
+        "client_id": client_id,
+    }
+
+    response = requests.post(
+        "https://api.fitbit.com/oauth2/token",
+        headers=headers,
+        data=data,
+    )
+
+    response.raise_for_status()
+    return response.json()
+
 
 # =========================
 # Use cases
