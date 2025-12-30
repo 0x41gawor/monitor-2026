@@ -1,0 +1,23 @@
+# /etc/systemd/system/monitor.service
+[Unit]
+Description=Monitor-2026 daily ingestion job
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+EnvironmentFile=/home/monitor-2026/.env
+
+WorkingDirectory=/home/monitor-2026
+
+ExecStart=/usr/bin/python3 job.py
+
+User=root
+Group=root
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

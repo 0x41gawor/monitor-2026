@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from monitor.snapshot import DaySnapshot
 from infra.fitbit.client import FitbitClient
 from infra.sheets.client import SheetsClient
+from infra.dietonez.client import DietonezClient
 from monitor.util import iso_to_hhmm, minutes_to_hhmm
 
 
@@ -11,9 +12,11 @@ class Monitor:
         self,
         fitbit: FitbitClient,
         sheets: SheetsClient,
+        dietonez: DietonezClient,
     ):
         self.fitbit = fitbit
         self.sheets = sheets
+        self.dietonez = dietonez
 
     def build_snapshot(self, date: str) -> DaySnapshot:
         d = datetime.fromisoformat(date)
@@ -22,6 +25,8 @@ class Monitor:
 
         sleep_raw = self.fitbit.sleep(date)
         main = next(s for s in sleep_raw["sleep"] if s.get("isMainSleep"))
+
+        dietonez_raw = self.dietonez.menu_summary(previous_date)
 
         return DaySnapshot(
             sleep_start=iso_to_hhmm(main["startTime"]),
@@ -36,6 +41,10 @@ class Monitor:
             hrv=self.fitbit.hrv(date),
             rhr=self.fitbit.rhr(date),
             steps=self.fitbit.steps(previous_date),
+            kcal=int(dietonez_raw["kcal"]),
+            proteins=int(dietonez_raw["proteins"]),
+            fats=int(dietonez_raw["fats"]),
+            carbs=int(dietonez_raw["carbs"]),
         )
 
     def insert_day(self, date: str):

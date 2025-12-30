@@ -8,6 +8,7 @@ load_dotenv()
 from monitor.monitor import Monitor
 from infra.fitbit.client import FitbitClient
 from infra.sheets.client import SheetsClient
+from infra.dietonez.client import DietonezClient
 
 
 # ============================================================
@@ -55,6 +56,9 @@ def main():
             credentials_file="credentials.json",
             spreadsheet_key=os.environ["GOOGLE_CLOUD_KEY"],
             worksheet="Monitor-2026",
+        ),
+        dietonez=DietonezClient(
+            base_url=os.environ["DIETONEZ_BASE_URL"],
         ),
     )
 

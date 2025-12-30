@@ -19,6 +19,6 @@ class DaySnapshot:
     steps: Optional[int] = field(default=None, metadata={"sheet": "steps [1]", "date_offset": -1})
 
     kcal: Optional[int] = field(default=None, metadata={"sheet": "cal. [kcal]", "date_offset": -1})
-    protein: Optional[int] = field(default=None, metadata={"sheet": "prot. [g]", "date_offset": -1})
+    proteins: Optional[int] = field(default=None, metadata={"sheet": "prot. [g]", "date_offset": -1})
     fats: Optional[int] = field(default=None, metadata={"sheet": "fats [g]", "date_offset": -1})
     carbs: Optional[int] = field(default=None, metadata={"sheet": "carb. [g]", "date_offset": -1})

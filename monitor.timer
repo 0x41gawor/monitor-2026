@@ -1,0 +1,10 @@
+# /etc/systemd/system/monitor.timer
+[Unit]
+Description=Run Monitor-2026 every day at 11:05
+
+[Timer]
+OnCalendar=*-*-* 11:05:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
