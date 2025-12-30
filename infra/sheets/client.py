@@ -75,6 +75,12 @@ class SheetsClient:
     # Public API
     # ============================================================
 
+    def insert_cell(self, date_str: str, header: str, value):
+        row = self._find_date_row(date_str)
+        col = self.col_idx[header]
+        self.sheet.update_cell(row, col, value)
+
+
     def insert_day(self, date_str: str, snapshot: DaySnapshot):
         row = self._find_date_row(date_str)
 

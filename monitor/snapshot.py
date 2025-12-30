@@ -16,9 +16,9 @@ class DaySnapshot:
 
     hrv: Optional[int] = field(default=None, metadata={"sheet": "hrv [ms]"})
     rhr: Optional[int] = field(default=None, metadata={"sheet": "rhr [bpm]"})
-    steps: Optional[int] = field(default=None, metadata={"sheet": "steps [1]"})
+    steps: Optional[int] = field(default=None, metadata={"sheet": "steps [1]", "date_offset": -1})
 
-    kcal: Optional[int] = field(default=None, metadata={"sheet": "cal. [kcal]"})
-    protein: Optional[int] = field(default=None, metadata={"sheet": "prot. [g]"})
-    fats: Optional[int] = field(default=None, metadata={"sheet": "fats [g]"})
-    carbs: Optional[int] = field(default=None, metadata={"sheet": "carb. [g]"})
+    kcal: Optional[int] = field(default=None, metadata={"sheet": "cal. [kcal]", "date_offset": -1})
+    protein: Optional[int] = field(default=None, metadata={"sheet": "prot. [g]", "date_offset": -1})
+    fats: Optional[int] = field(default=None, metadata={"sheet": "fats [g]", "date_offset": -1})
+    carbs: Optional[int] = field(default=None, metadata={"sheet": "carb. [g]", "date_offset": -1})

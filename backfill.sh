@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-START_DATE="2025-11-25"
-END_DATE="2025-12-29"
+START_DATE="2025-12-29"
+END_DATE="2025-12-30"
 
 current="$START_DATE"
 
