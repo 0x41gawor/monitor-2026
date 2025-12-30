@@ -61,3 +61,8 @@ Tak więc logo ma łączyć dwa kierunki:
 **Ukryta metafora**
 - wiedza/rozwój powstaje na marginesach
 - intelektualny wydźwięk (w kontraście do duchowego oka)
+
+
+![](eyes.png)
+
+![](margins.png)
