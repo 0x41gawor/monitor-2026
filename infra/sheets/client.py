@@ -71,6 +71,18 @@ class SheetsClient:
     def is_sunday(self, date_str: str) -> bool:
         return datetime.fromisoformat(date_str).weekday() == 6
 
+    def _hex_to_rgb01(self, hex_color: str) -> dict:
+        hex_color = hex_color.lstrip("#")
+        if len(hex_color) != 6:
+            raise ValueError(f"Invalid hex color: {hex_color}")
+
+        r = int(hex_color[0:2], 16) / 255
+        g = int(hex_color[2:4], 16) / 255
+        b = int(hex_color[4:6], 16) / 255
+
+        return {"red": r, "green": g, "blue": b}
+
+
     # ============================================================
     # Public API
     # ============================================================
@@ -128,3 +140,33 @@ class SheetsClient:
             end_col=20,    # T
             color=LIGHT_BLUE_3,
         )
+
+    def color_cell(self, date_str: str, header: str, hex_color: str):
+        row = self._find_date_row(date_str) -1
+        col = self.col_idx[header] -1
+
+        color = self._hex_to_rgb01(hex_color)
+
+        request = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": self.sheet.id,
+                            "startRowIndex": row,
+                            "endRowIndex": row + 1,
+                            "startColumnIndex": col,
+                            "endColumnIndex": col + 1,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": color
+                            }
+                        },
+                        "fields": "userEnteredFormat.backgroundColor",
+                    }
+                }
+            ]
+        }
+
+        self.sheet.spreadsheet.batch_update(request)

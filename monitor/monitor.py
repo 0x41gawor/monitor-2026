@@ -5,6 +5,7 @@ from infra.fitbit.client import FitbitClient
 from infra.sheets.client import SheetsClient
 from infra.dietonez.client import DietonezClient
 from monitor.util import iso_to_hhmm, minutes_to_hhmm
+from monitor.colorer import Colorer
 
 
 class Monitor:
@@ -13,10 +14,12 @@ class Monitor:
         fitbit: FitbitClient,
         sheets: SheetsClient,
         dietonez: DietonezClient,
+        colorer: Colorer,
     ):
         self.fitbit = fitbit
         self.sheets = sheets
         self.dietonez = dietonez
+        self.colorer = colorer
 
     def build_snapshot(self, date: str) -> DaySnapshot:
         d = datetime.fromisoformat(date)
@@ -64,6 +67,14 @@ class Monitor:
                 f.metadata["sheet"],
                 value,
             )
+
+            color = self.colorer.get_color(f.metadata["sheet"], value)
+            if color is not None:
+                self.sheets.color_cell(
+                    target_date,
+                    f.metadata["sheet"],
+                    color,
+                )
 
 
     def insert_week_if_needed(self, date: str):

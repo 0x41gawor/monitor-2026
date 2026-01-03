@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from monitor.monitor import Monitor
+from monitor.colorer import Colorer, ColorPalette
 from infra.fitbit.client import FitbitClient
 from infra.sheets.client import SheetsClient
 from infra.dietonez.client import DietonezClient
@@ -59,6 +60,18 @@ def main():
         ),
         dietonez=DietonezClient(
             base_url=os.environ["DIETONEZ_BASE_URL"],
+        ),
+        colorer=Colorer(
+            strong_palette=ColorPalette(
+                ok="#57BB8A",
+                warn="#FFD666",
+                bad="#E67C73",
+            ),
+            soft_palette=ColorPalette(
+                ok="#99DABA",
+                warn="#FCE7AD",
+                bad="#EEA49E",
+            ),
         ),
     )
 
