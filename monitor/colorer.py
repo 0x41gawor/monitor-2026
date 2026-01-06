@@ -132,7 +132,7 @@ class Colorer:
         severity = self._normal_dist(
             value=hours,
             mean=target,
-            var=0.5,   # np. tolerancja ~1h
+            var=0.5,   # np. tolerancja ~30min
         )
 
         return self._color_dist(severity, self.palettes["strong"])
@@ -144,7 +144,7 @@ class Colorer:
         severity = self._normal_dist(
             value=hours,
             mean=target,
-            var=0.5,   # np. tolerancja ~1h
+            var=0.5,   # np. tolerancja ~30min
         )
 
         return self._color_dist(severity, self.palettes["soft"])

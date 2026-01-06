@@ -170,3 +170,115 @@ class SheetsClient:
         }
 
         self.sheet.spreadsheet.batch_update(request)
+
+    def read_value(self, row: int, header: str):
+        """
+        Atomic read of a single cell value.
+        """
+        col = self.col_idx[header]
+        return self.sheet.cell(row, col).value
+    
+    def read_range(
+        self,
+        start_row: int,
+        end_row: int,
+        headers: list[str],
+        ) -> list[dict[str, str]]:
+        """
+        Reads a rectangular range in ONE API call.
+        Returns list of dicts: [{header: value, ...}, ...]
+        """
+
+        cols = [self.col_idx[h] for h in headers]
+        start_col = min(cols)
+        end_col = max(cols)
+
+        start_letter = self._colnum_to_letter(start_col)
+        end_letter = self._colnum_to_letter(end_col)
+
+        rng = f"{start_letter}{start_row}:{end_letter}{end_row}"
+        values = self.sheet.get(rng)
+
+        result = []
+        for row in values:
+            row_dict = {}
+            for h, col in zip(headers, cols):
+                idx = col - start_col
+                row_dict[h] = row[idx] if idx < len(row) else ""
+            result.append(row_dict)
+
+        return result
+
+    def color_cell_by_row(self, row: int, header: str, hex_color: str):
+        """
+        Colors a single cell by absolute row number.
+        Row is 1-based (Google Sheets convention).
+        """
+
+        row_idx = row - 1
+        col_idx = self.col_idx[header] - 1
+
+        color = self._hex_to_rgb01(hex_color)
+
+        request = {
+            "requests": [
+                {
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": self.sheet.id,
+                            "startRowIndex": row_idx,
+                            "endRowIndex": row_idx + 1,
+                            "startColumnIndex": col_idx,
+                            "endColumnIndex": col_idx + 1,
+                        },
+                        "cell": {
+                            "userEnteredFormat": {
+                                "backgroundColor": color
+                            }
+                        },
+                        "fields": "userEnteredFormat.backgroundColor",
+                    }
+                }
+            ]
+        }
+
+        self.sheet.spreadsheet.batch_update(request)
+
+    def batch_color_cells(self, requests: list[dict]):
+        """
+        Executes a batchUpdate with multiple repeatCell requests.
+        """
+        if not requests:
+            return
+
+        self.sheet.spreadsheet.batch_update({
+            "requests": requests
+        })
+
+    def build_color_request(self, row: int, header: str, hex_color: str) -> dict:
+        """
+        Builds a repeatCell request without executing it.
+        Row is 1-based.
+        """
+        row_idx = row - 1
+        col_idx = self.col_idx[header] - 1
+
+        color = self._hex_to_rgb01(hex_color)
+
+        return {
+            "repeatCell": {
+                "range": {
+                    "sheetId": self.sheet.id,
+                    "startRowIndex": row_idx,
+                    "endRowIndex": row_idx + 1,
+                    "startColumnIndex": col_idx,
+                    "endColumnIndex": col_idx + 1,
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "backgroundColor": color
+                    }
+                },
+                "fields": "userEnteredFormat.backgroundColor",
+            }
+        }
