@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-START_DATE="2025-02-23"
+START_DATE="2025-09-12"
 END_DATE="2025-09-21"
 
 current="$START_DATE"
@@ -11,5 +11,5 @@ while [[ "$current" <="$END_DATE" ]]; do
 
   # next day
   current=$(date -I -d "$current + 1 day")
-  sleep 4
+  sleep 15
 done

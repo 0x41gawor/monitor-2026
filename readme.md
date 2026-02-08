@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" style="zoom:20%"/>
+  <img src="docs/logo.png" style="zoom:60%"/>
   <br>
   <i>Monitor przerzuca mi dane z zegarka Fitbit oraz Dietonez do google Sheets</i>
   <br>
