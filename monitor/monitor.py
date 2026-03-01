@@ -27,20 +27,24 @@ class Monitor:
         previous_date = (d - timedelta(days=1)).date().isoformat()
 
         sleep_raw = self.fitbit.sleep(date)
-        main = next(s for s in sleep_raw["sleep"] if s.get("isMainSleep"))
+        
+        main = next((s for s in sleep_raw["sleep"] if s.get("isMainSleep")), None)
 
         dietonez_raw = self.dietonez.menu_summary(previous_date)
 
+        summary = sleep_raw.get("summary", {})
+        stages = summary.get("stages") or {}
+
         return DaySnapshot(
-            sleep_start=iso_to_hhmm(main["startTime"]),
-            sleep_end=iso_to_hhmm(main["endTime"]),
-            sleep_asleep=minutes_to_hhmm(sleep_raw["summary"]["totalMinutesAsleep"]),
-            sleep_in_bed=minutes_to_hhmm(sleep_raw["summary"]["totalTimeInBed"]),
-            sleep_efficiency=main["efficiency"],
-            sleep_deep=minutes_to_hhmm(sleep_raw["summary"]["stages"]["deep"]),
-            sleep_light=minutes_to_hhmm(sleep_raw["summary"]["stages"]["light"]),
-            sleep_rem=minutes_to_hhmm(sleep_raw["summary"]["stages"]["rem"]),
-            sleep_wake=minutes_to_hhmm(sleep_raw["summary"]["stages"]["wake"]),
+            sleep_start=iso_to_hhmm(main["startTime"]) if main else None,
+            sleep_end=iso_to_hhmm(main["endTime"]) if main else None,
+            sleep_asleep=minutes_to_hhmm(summary.get("totalMinutesAsleep")) if summary.get("totalMinutesAsleep") else None,
+            sleep_in_bed=minutes_to_hhmm(summary.get("totalTimeInBed")) if summary.get("totalTimeInBed") else None,
+            sleep_efficiency=main["efficiency"] if main else None,
+            sleep_deep=minutes_to_hhmm(stages.get("deep")) if stages.get("deep") else None,
+            sleep_light=minutes_to_hhmm(stages.get("light")) if stages.get("light") else None,
+            sleep_rem=minutes_to_hhmm(stages.get("rem")) if stages.get("rem") else None,
+            sleep_wake=minutes_to_hhmm(stages.get("wake")) if stages.get("wake") else None,
             hrv=self.fitbit.hrv(date),
             rhr=self.fitbit.rhr(date),
             steps=self.fitbit.steps(previous_date),

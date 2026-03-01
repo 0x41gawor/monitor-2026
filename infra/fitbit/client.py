@@ -135,13 +135,15 @@ class FitbitClient:
         data = self._get(
             f"/1/user/{self.user_id}/hrv/date/{date}.json"
         )
-        return round(data["hrv"][0]["value"]["dailyRmssd"])
+        return round(data["hrv"][0]["value"]["dailyRmssd"]) if data.get("hrv") else None
 
     def steps(self, date: str) -> int:
         self._ensure()
         data = self._get(
             f"/1/user/{self.user_id}/activities/date/{date}.json"
         )
+        if data['summary']['steps'] == 0:
+            return None
         return data["summary"]["steps"]
 
     def rhr(self, date: str) -> int:
@@ -149,4 +151,9 @@ class FitbitClient:
         data = self._get(
             f"/1/user/{self.user_id}/activities/heart/date/{date}/{date}/1min.json"
         )
-        return data["activities-heart"][0]["value"]["restingHeartRate"]
+        heart = data.get("activities-heart")
+        if not heart:
+            return None
+
+        value = heart[0].get("value", {})
+        return value.get("restingHeartRate")
