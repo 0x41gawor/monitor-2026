@@ -29,10 +29,14 @@ class Monitor:
         sleep_raw = self.fitbit.sleep(date)
         
         main = next((s for s in sleep_raw["sleep"] if s.get("isMainSleep")), None)
+        if not main:
+            print(f"No main sleep data for {date}")
 
         dietonez_raw = self.dietonez.menu_summary(previous_date)
 
         summary = sleep_raw.get("summary", {})
+        if summary == {}:
+            print(f"No summary sleep data for {date}")
         stages = summary.get("stages") or {}
 
         return DaySnapshot(
