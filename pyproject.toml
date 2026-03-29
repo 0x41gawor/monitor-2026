@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "monitor-2026"
+version = "0.1.0"
+description = "Daily monitor job: Fitbit + Dietonez -> Google Sheets"
+readme = "readme.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32.0,<3.0.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+    "gspread>=6.0.0,<7.0.0",
+    "google-auth>=2.30.0,<3.0.0",
+    "APScheduler>=3.10.0,<4.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "infra*", "monitor*"]
