@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" style="zoom:60%"/>
+  <img src="__docs__/logo.png" style="zoom:60%"/>
   <br>
   <i>Monitor przerzuca mi dane z zegarka Fitbit oraz Dietonez do google Sheets</i>
   <br>
@@ -7,11 +7,11 @@
 
 # Architektura
 
-<img src="docs/arch.png" align="center">
+<img src="__docs__/arch.png" align="center">
 
 # Result
 
-![](docs/result.png)
+![](__docs__/result.png)
 
 Koloumny:
 - "type [txt]"
