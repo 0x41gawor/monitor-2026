@@ -19,4 +19,6 @@ COPY job.py ./job.py
 
 RUN pip install --no-cache-dir .
 
-CMD ["python", "-m", "app.scheduler"]
+EXPOSE 5000
+
+CMD ["python", "-m", "app.server"]

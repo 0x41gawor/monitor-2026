@@ -2,24 +2,19 @@
 from __future__ import annotations
 
 import logging
-import signal
-import sys
 
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.config import load_config
-from app.run_once import run_once, setup_logging
+from app.config import AppConfig
+from app.run_once import run_once
 
 
 logger = logging.getLogger(__name__)
 
 
-def main() -> None:
-    config = load_config()
-    setup_logging()
-
-    scheduler = BlockingScheduler(timezone=config.tzinfo)
+def build_scheduler(config: AppConfig) -> BackgroundScheduler:
+    scheduler = BackgroundScheduler(timezone=config.tzinfo)
 
     scheduler.add_job(
         func=run_once,
@@ -36,25 +31,10 @@ def main() -> None:
     )
 
     logger.info(
-        "Scheduler configured",
-        extra={
-            "timezone": config.timezone,
-            "hour": config.schedule_hour,
-            "minute": config.schedule_minute,
-        },
+        "Scheduler configured: timezone=%s hour=%s minute=%s",
+        config.timezone,
+        config.schedule_hour,
+        config.schedule_minute,
     )
 
-    def _shutdown(signum, _frame):
-        logger.info("Received shutdown signal", extra={"signal": signum})
-        scheduler.shutdown(wait=False)
-        sys.exit(0)
-
-    signal.signal(signal.SIGTERM, _shutdown)
-    signal.signal(signal.SIGINT, _shutdown)
-
-    logger.info("Scheduler started")
-    scheduler.start()
-
-
-if __name__ == "__main__":
-    main()
+    return scheduler
