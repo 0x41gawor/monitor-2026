@@ -13,10 +13,9 @@ load_dotenv()
 
 @dataclass(frozen=True)
 class AppConfig:
-    fitbit_user_id: str
-    fitbit_client_id: str
-    fitbit_client_secret: str
-    fitbit_tokens_file: str
+    google_health_client_id: str
+    google_health_client_secret: str
+    google_health_tokens_file: str
 
     google_credentials_file: str
     google_spreadsheet_key: str
@@ -47,10 +46,9 @@ def _require(name: str) -> str:
 
 def load_config() -> AppConfig:
     return AppConfig(
-        fitbit_user_id=_require("FITBIT_USER_ID"),
-        fitbit_client_id=_require("FITBIT_CLIENT_ID"),
-        fitbit_client_secret=_require("FITBIT_CLIENT_SECRET"),
-        fitbit_tokens_file=os.getenv("FITBIT_TOKENS_FILE", ".fitbit_tokens.json"),
+        google_health_client_id=_require("GOOGLE_HEALTH_CLIENT_ID"),
+        google_health_client_secret=_require("GOOGLE_HEALTH_CLIENT_SECRET"),
+        google_health_tokens_file=os.getenv("GOOGLE_HEALTH_TOKENS_FILE", ".google_health_tokens.json"),
 
         google_credentials_file=os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json"),
         google_spreadsheet_key=_require("GOOGLE_CLOUD_KEY"),

@@ -5,7 +5,7 @@ import os
 
 from app.config import AppConfig
 from infra.dietonez.client import DietonezClient
-from infra.fitbit.client import FitbitClient
+from infra.google_health.client import GoogleHealthClient
 from infra.sheets.client import SheetsClient
 from monitor.colorer import ColorPalette, Colorer
 from monitor.monitor import Monitor
@@ -34,11 +34,10 @@ def build_colorer(config: AppConfig) -> Colorer:
 
 
 def build_monitor(config: AppConfig) -> Monitor:
-    fitbit = FitbitClient(
-        user_id=config.fitbit_user_id,
-        client_id=config.fitbit_client_id,
-        client_secret=config.fitbit_client_secret,
-        tokens_file=config.fitbit_tokens_file,
+    google_health = GoogleHealthClient(
+        client_id=config.google_health_client_id,
+        client_secret=config.google_health_client_secret,
+        tokens_file=config.google_health_tokens_file,
     )
 
     sheets = SheetsClient(
@@ -54,7 +53,7 @@ def build_monitor(config: AppConfig) -> Monitor:
     colorer = build_colorer(config)
 
     return Monitor(
-        fitbit=fitbit,
+        google_health=google_health,
         sheets=sheets,
         dietonez=dietonez,
         colorer=colorer,

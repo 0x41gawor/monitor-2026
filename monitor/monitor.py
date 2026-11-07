@@ -1,7 +1,7 @@
 from dataclasses import fields
 from datetime import datetime, timedelta
 from monitor.snapshot import DaySnapshot
-from infra.fitbit.client import FitbitClient
+from infra.google_health.client import GoogleHealthClient
 from infra.sheets.client import SheetsClient
 from infra.dietonez.client import DietonezClient
 from monitor.util import iso_to_hhmm, minutes_to_hhmm
@@ -11,12 +11,12 @@ from monitor.colorer import Colorer
 class Monitor:
     def __init__(
         self,
-        fitbit: FitbitClient,
+        google_health: GoogleHealthClient,
         sheets: SheetsClient,
         dietonez: DietonezClient,
         colorer: Colorer,
     ):
-        self.fitbit = fitbit
+        self.google_health = google_health
         self.sheets = sheets
         self.dietonez = dietonez
         self.colorer = colorer
@@ -26,7 +26,7 @@ class Monitor:
 
         previous_date = (d - timedelta(days=1)).date().isoformat()
 
-        sleep_raw = self.fitbit.sleep(date)
+        sleep_raw = self.google_health.sleep(date)
         
         main = next((s for s in sleep_raw["sleep"] if s.get("isMainSleep")), None)
         if not main:
@@ -49,9 +49,9 @@ class Monitor:
             sleep_light=minutes_to_hhmm(stages.get("light")) if stages.get("light") else None,
             sleep_rem=minutes_to_hhmm(stages.get("rem")) if stages.get("rem") else None,
             sleep_wake=minutes_to_hhmm(stages.get("wake")) if stages.get("wake") else None,
-            hrv=self.fitbit.hrv(date),
-            rhr=self.fitbit.rhr(date),
-            steps=self.fitbit.steps(previous_date),
+            hrv=self.google_health.hrv(date),
+            rhr=self.google_health.rhr(date),
+            steps=self.google_health.steps(previous_date),
             kcal=int(dietonez_raw["kcal"]),
             proteins=int(dietonez_raw["proteins"]),
             fats=int(dietonez_raw["fats"]),

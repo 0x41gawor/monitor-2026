@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "monitor-2026"
 version = "0.1.0"
-description = "Daily monitor job: Fitbit + Dietonez -> Google Sheets"
+description = "Daily monitor job: Google Health + Dietonez -> Google Sheets"
 readme = "readme.md"
 requires-python = ">=3.11"
 dependencies = [
