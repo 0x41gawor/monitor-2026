@@ -1,13 +1,16 @@
 # app/http.py
 from __future__ import annotations
 
+import hmac
 import logging
 from datetime import datetime
+from functools import wraps
 from threading import Lock
 
 from flask import Flask, jsonify, request
 
 from app.config import load_config
+from app.run_log import RunLog
 from app.run_once import run_once
 
 
@@ -17,6 +20,17 @@ logger = logging.getLogger(__name__)
 def create_http_app(scheduler) -> Flask:
     app = Flask(__name__)
     run_lock = Lock()
+    config = load_config()
+
+    def require_api_key(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            provided = request.headers.get("X-API-Key", "")
+            if not hmac.compare_digest(provided.encode("utf-8"), config.api_key.encode("utf-8")):
+                return jsonify({"status": "fail", "error": "Unauthorized."}), 401
+            return view(*args, **kwargs)
+
+        return wrapper
 
     @app.get("/api/v1/health/live")
     def health_live():
@@ -67,8 +81,19 @@ def create_http_app(scheduler) -> Flask:
             }
         ), 200
 
+    @app.get("/api/v1/runs")
+    @require_api_key
+    def api_runs():
+        try:
+            limit = min(max(int(request.args.get("limit", 20)), 1), 200)
+        except ValueError:
+            return jsonify({"status": "fail", "error": "Invalid limit."}), 400
+
+        return jsonify({"runs": RunLog(config.run_log_db).recent(limit)}), 200
+
     @app.post("/api/v1/run")
     @app.get("/api/v1/run")
+    @require_api_key
     def api_run():
         requested_date = request.args.get("date")
 
@@ -93,7 +118,7 @@ def create_http_app(scheduler) -> Flask:
             ), 409
 
         try:
-            run_once(requested_date)
+            run_once(requested_date, trigger="manual")
         except Exception as exc:
             logger.exception("Manual run failed")
             return jsonify(

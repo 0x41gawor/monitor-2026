@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    run_once(args.date)
+    run_once(args.date, trigger="cli")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ IMAGE_NAME=monitor-2026
 CONTAINER_NAME=monitor-2026
 HOST_PORT=$(LUKA)
 CONTAINER_PORT=5000
+API_KEY_HEADER=X-API-Key: $$(grep '^API_KEY=' .env | cut -d= -f2-)
 
 docker-build:
 	docker build -t $(IMAGE_NAME) .
@@ -15,6 +16,7 @@ docker-run:
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
 		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
+		-v $(CURDIR)/data/runs:/data/runs \
 		$(IMAGE_NAME)
 
 docker-run-once:
@@ -23,6 +25,7 @@ docker-run-once:
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
 		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
+		-v $(CURDIR)/data/runs:/data/runs \
 		$(IMAGE_NAME) \
 		python -m app.cli
 
@@ -32,6 +35,7 @@ docker-run-date:
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
 		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
+		-v $(CURDIR)/data/runs:/data/runs \
 		$(IMAGE_NAME) \
 		python -m app.cli --date $(DATE)
 
@@ -63,7 +67,10 @@ curl-ready:
 	curl http://localhost:$(HOST_PORT)/api/v1/health/ready
 
 curl-run-today:
-	curl -X GET http://localhost:$(HOST_PORT)/api/v1/run
+	curl -X GET -H "$(API_KEY_HEADER)" http://localhost:$(HOST_PORT)/api/v1/run
 
 curl-run-date:
-	curl -X GET "http://localhost:$(HOST_PORT)/api/v1/run?date=$(DATE)"
+	curl -X GET -H "$(API_KEY_HEADER)" "http://localhost:$(HOST_PORT)/api/v1/run?date=$(DATE)"
+
+curl-runs:
+	curl -H "$(API_KEY_HEADER)" http://localhost:$(HOST_PORT)/api/v1/runs

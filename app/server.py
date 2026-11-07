@@ -7,6 +7,7 @@ import sys
 
 from app.config import load_config
 from app.http import create_http_app
+from app.run_log import RunLog
 from app.run_once import setup_logging
 from app.scheduler import build_scheduler
 
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     setup_logging()
     config = load_config()
+
+    RunLog(config.run_log_db).close_stale()
 
     scheduler = build_scheduler(config)
     scheduler.start()

@@ -36,6 +36,9 @@ class AppConfig:
     schedule_minute: int
     timezone: str
 
+    api_key: str
+    run_log_db: str
+
     @property
     def tzinfo(self) -> ZoneInfo:
         return ZoneInfo(self.timezone)
@@ -72,4 +75,7 @@ def load_config() -> AppConfig:
         schedule_hour=int(os.getenv("SCHEDULE_HOUR", "11")),
         schedule_minute=int(os.getenv("SCHEDULE_MINUTE", "5")),
         timezone=os.getenv("TIMEZONE", "Europe/Warsaw"),
+
+        api_key=_require("API_KEY"),
+        run_log_db=os.getenv("RUN_LOG_DB", "data/runs/runs.db"),
     )
