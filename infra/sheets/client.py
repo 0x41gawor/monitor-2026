@@ -133,11 +133,12 @@ class SheetsClient:
 
         last_new_row = last_row + 7
 
-        # kolorujemy ostatni nowo dodany wiersz
+        # kolorujemy ostatni nowo dodany wiersz (od steps do carb.),
+        # zakres z nagłówków, bo kolumny w arkuszu się przesuwają
         self._color_row(
             row=last_new_row,
-            start_col=12,  # L
-            end_col=22,    # T
+            start_col=self.col_idx["steps [1]"],
+            end_col=self.col_idx["carb. [g]"],
             color=LIGHT_BLUE_3,
         )
 
