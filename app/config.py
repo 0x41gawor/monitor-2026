@@ -17,6 +17,10 @@ class AppConfig:
     google_health_client_secret: str
     google_health_tokens_file: str
 
+    withings_client_id: str
+    withings_client_secret: str
+    withings_tokens_file: str
+
     google_credentials_file: str
     google_spreadsheet_key: str
     google_worksheet: str
@@ -49,6 +53,10 @@ def load_config() -> AppConfig:
         google_health_client_id=_require("GOOGLE_HEALTH_CLIENT_ID"),
         google_health_client_secret=_require("GOOGLE_HEALTH_CLIENT_SECRET"),
         google_health_tokens_file=os.getenv("GOOGLE_HEALTH_TOKENS_FILE", ".google_health_tokens.json"),
+
+        withings_client_id=_require("WITHINGS_CLIENT_ID"),
+        withings_client_secret=_require("WITHINGS_CLIENT_SECRET"),
+        withings_tokens_file=os.getenv("WITHINGS_TOKENS_FILE", ".withings_tokens.json"),
 
         google_credentials_file=os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json"),
         google_spreadsheet_key=_require("GOOGLE_CLOUD_KEY"),

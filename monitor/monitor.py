@@ -2,6 +2,7 @@ from dataclasses import fields
 from datetime import datetime, timedelta
 from monitor.snapshot import DaySnapshot
 from infra.google_health.client import GoogleHealthClient
+from infra.withings.client import WithingsClient
 from infra.sheets.client import SheetsClient
 from infra.dietonez.client import DietonezClient
 from monitor.util import iso_to_hhmm, minutes_to_hhmm
@@ -12,11 +13,13 @@ class Monitor:
     def __init__(
         self,
         google_health: GoogleHealthClient,
+        withings: WithingsClient,
         sheets: SheetsClient,
         dietonez: DietonezClient,
         colorer: Colorer,
     ):
         self.google_health = google_health
+        self.withings = withings
         self.sheets = sheets
         self.dietonez = dietonez
         self.colorer = colorer
@@ -33,6 +36,8 @@ class Monitor:
             print(f"No main sleep data for {date}")
 
         dietonez_raw = self.dietonez.menu_summary(previous_date)
+
+        body = self.withings.body_composition(date)
 
         summary = sleep_raw.get("summary", {})
         if summary == {}:
@@ -52,6 +57,9 @@ class Monitor:
             hrv=self.google_health.hrv(date),
             rhr=self.google_health.rhr(date),
             steps=self.google_health.steps(previous_date),
+            weight=body["weight"],
+            fat=body["fat"],
+            muscle=body["muscle"],
             kcal=int(dietonez_raw["kcal"]),
             proteins=int(dietonez_raw["proteins"]),
             fats=int(dietonez_raw["fats"]),

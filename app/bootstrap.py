@@ -7,6 +7,7 @@ from app.config import AppConfig
 from infra.dietonez.client import DietonezClient
 from infra.google_health.client import GoogleHealthClient
 from infra.sheets.client import SheetsClient
+from infra.withings.client import WithingsClient
 from monitor.colorer import ColorPalette, Colorer
 from monitor.monitor import Monitor
 
@@ -40,6 +41,13 @@ def build_monitor(config: AppConfig) -> Monitor:
         tokens_file=config.google_health_tokens_file,
     )
 
+    withings = WithingsClient(
+        client_id=config.withings_client_id,
+        client_secret=config.withings_client_secret,
+        tokens_file=config.withings_tokens_file,
+        timezone=config.timezone,
+    )
+
     sheets = SheetsClient(
         credentials_file=config.google_credentials_file,
         spreadsheet_key=config.google_spreadsheet_key,
@@ -54,6 +62,7 @@ def build_monitor(config: AppConfig) -> Monitor:
 
     return Monitor(
         google_health=google_health,
+        withings=withings,
         sheets=sheets,
         dietonez=dietonez,
         colorer=colorer,

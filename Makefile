@@ -14,6 +14,7 @@ docker-run:
 		-p $(HOST_PORT):$(CONTAINER_PORT) \
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
+		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
 		$(IMAGE_NAME)
 
 docker-run-once:
@@ -21,6 +22,7 @@ docker-run-once:
 		--env-file .env \
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
+		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
 		$(IMAGE_NAME) \
 		python -m app.cli
 
@@ -29,6 +31,7 @@ docker-run-date:
 		--env-file .env \
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
+		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
 		$(IMAGE_NAME) \
 		python -m app.cli --date $(DATE)
 
@@ -41,6 +44,7 @@ docker-shell:
 		-p $(HOST_PORT):$(CONTAINER_PORT) \
 		-v $(CURDIR)/run/secrets/credentials.json:/run/secrets/credentials.json:ro \
 		-v $(CURDIR)/data/.fitbit_tokens.json:/data/.fitbit_tokens.json \
+		-v $(CURDIR)/data/.withings_tokens.json:/data/.withings_tokens.json \
 		$(IMAGE_NAME) \
 		/bin/bash
 
