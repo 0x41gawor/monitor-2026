@@ -137,7 +137,7 @@ class SheetsClient:
         self._color_row(
             row=last_new_row,
             start_col=12,  # L
-            end_col=20,    # T
+            end_col=22,    # T
             color=LIGHT_BLUE_3,
         )
 
